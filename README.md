@@ -31,7 +31,7 @@ The project environment is similar to, but not identical to the Banana Collector
 
 **Note:** The Unity ML-Agent team frequently releases updated versions of their environment. I'm are using the v0.4 interface. To avoid any confusion, please use the workspace provided here or work with v0.4 locally.
 
-### Step 01 Clone the DRLND Repository
+### Step 1 Clone the DRLND Repository
 
 Clone the [DRLND Repository](https://github.com/udacity/deep-reinforcement-learning#dependencies) to set up your Python environment. These instructions can be found in README.md at the root of the repository. By following these instructions, you will install PyTorch, the ML-Agents toolkit, and a few more Python packages required to complete the project.
 
@@ -67,5 +67,6 @@ Note that in the repository there are two other files, named `dqn_agent.py` and 
 Some ideas that could lead to improvements in the learning process are trying to:
 
 - Use Double Q-Learning, as presented [here](https://arxiv.org/pdf/1509.06461). The idea is very similar the the DQN, but the Q-learning algorithm is known to overestimate action values under certain conditions and so double Q-learning could lead to better performance.
-
+- Change the neural network architecture. Maybe add a convolutional layer or some dropout and see how things go.
+- Try using [prioritized experience replay](https://arxiv.org/pdf/1511.05952) to replay important transitions more frequently, and therefore learn more efficiently.
 
