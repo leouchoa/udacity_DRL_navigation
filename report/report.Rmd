@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,message = FALSE,warning = FALSE)
 ```
 
 
@@ -39,7 +39,7 @@ Experience replay is mainly just creating a buffer to store some events (the $(S
 
 Fixed q-targets is a technique used to avoid a difficulty found in Q-Learning, where we update a guess with a guess, which can potentially lead to harmful correlations. In Q-Learning after each pass our neural network tries to get as close as possible to the target q-values, but the problem is that because we update the weights after each forward pass, our q-value target to calculate the loss function is always changing and that makes learning a bit unstable. To solve this problem the idea is to store the weights in another neural network $\hat{q}$ (called target network), freeze $\hat{q}$ the weights and update them every once in a while. Now when performing the learning step, our q-value loss function is the deviation from the forward pass calculated $q$ and the target (fixed) $\hat{q}$ value. That means that out "ground-truth" response variable is the fixed q-value from the target network and that makes learning more stable. 
 
-![](imgs/dqn_print_1.png)
+![Figure 01: DQN paper implementation](imgs/dqn_print_1.png)
 
 \pagebreak
 
@@ -65,13 +65,13 @@ The `model.py` file contains the pytorch model architecture used to solve the en
 
 The `model.py` file contains:
 
-- the hyperparameters used: 
-    - `BATCH_SIZE`: neural network mini-batch size
-    - `GAMMA`: the discount factor used in the discounted sum of rewards
-    - `TAU`: the $\tau$ parameter used to soft update of target parameters
-    - `LR`: the neural network learning rate use in gradient descent
-    - `UPDATE_EVERY`: how often to update the network
-    - `BUFFER_SIZE`: replay buffer size (how much we store into the replay buffer)
+- the `hyperparameters` used: 
+    - `BATCH_SIZE = 64`: neural network mini-batch size
+    - `GAMMA = 0.99`: the discount factor used in the discounted sum of rewards
+    - `TAU = 1e-3`: the $\tau$ parameter used to soft update of target parameters
+    - `LR = 5e-4`: the neural network learning rate use in gradient descent
+    - `UPDATE_EVERY = 4`: how often to update the network
+    - `BUFFER_SIZE = 1e5`: replay buffer size (how much we store into the replay buffer)
     
     
 - the `Agent` class: 
@@ -83,6 +83,20 @@ The `model.py` file contains:
     - initialize storage
     - implement the `add` (add new experiences) and `sample` (sample experiences to mini-batch GD learning) methods
 
+\pagebreak
+
+# Results
+
+The `DQN` implementation was able to successfully solve the task of achieving an average score of +13 over 100 episodes in 445 episodes. Its average score was 13.01, as shown in the `Figure 02` bellow. It's important to note that we used a early stopping technique not to go into the 5000 episodes, if not needed. The plot of the scores is shown in `Figure 03` and it suggests that just increasing the number of episodes alone could improve performance.
+
+![Learning evolution](imgs/results_1.png)
+
+
+![Learning evolution plot](imgs/results_2.png)
+
+After seeing the plot shown in `Figure 03` I've tried to improve the agent's performance by just removing the early stopping if-clause and letting the DQN to train the entire 3000 episodes. The results are shown in the `Figure 04` and from it we can see that increasing the number of episodes can only get us so far (because the average score stagnates after about 1000 episodes) and to make the agent learn better we have to try different strategies, as suggest in the section Ideas to Explore Later.
+
+![Learning evolution plot without early stopping](imgs/results_3.png)
 \pagebreak
 
 # Ideas to Explore Later

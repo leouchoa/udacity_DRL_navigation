@@ -145,7 +145,11 @@ q-value loss function is the deviation from the forward pass calculated
 ``ground-truth'' response variable is the fixed q-value from the target
 network and that makes learning more stable.
 
+\begin{figure}
+\centering
 \includegraphics{imgs/dqn_print_1.png}
+\caption{Figure 01: DQN paper implementation}
+\end{figure}
 
 \pagebreak
 
@@ -204,26 +208,26 @@ The \texttt{model.py} file contains:
 \begin{itemize}
 \tightlist
 \item
-  the hyperparameters used:
+  the \texttt{hyperparameters} used:
 
   \begin{itemize}
   \tightlist
   \item
-    \texttt{BATCH\_SIZE}: neural network mini-batch size
+    \texttt{BATCH\_SIZE\ =\ 64}: neural network mini-batch size
   \item
-    \texttt{GAMMA}: the discount factor used in the discounted sum of
-    rewards
+    \texttt{GAMMA\ =\ 0.99}: the discount factor used in the discounted
+    sum of rewards
   \item
-    \texttt{TAU}: the \(\tau\) parameter used to soft update of target
-    parameters
+    \texttt{TAU\ =\ 1e-3}: the \(\tau\) parameter used to soft update of
+    target parameters
   \item
-    \texttt{LR}: the neural network learning rate use in gradient
-    descent
+    \texttt{LR\ =\ 5e-4}: the neural network learning rate use in
+    gradient descent
   \item
-    \texttt{UPDATE\_EVERY}: how often to update the network
+    \texttt{UPDATE\_EVERY\ =\ 4}: how often to update the network
   \item
-    \texttt{BUFFER\_SIZE}: replay buffer size (how much we store into
-    the replay buffer)
+    \texttt{BUFFER\_SIZE\ =\ 1e5}: replay buffer size (how much we store
+    into the replay buffer)
   \end{itemize}
 \item
   the \texttt{Agent} class:
@@ -253,6 +257,40 @@ The \texttt{model.py} file contains:
 \end{itemize}
 
 \pagebreak
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+The \texttt{DQN} implementation was able to successfully solve the task
+of achieving an average score of +13 over 100 episodes in 445 episodes.
+Its average score was 13.01, as shown in the \texttt{Figure\ 02} bellow.
+It's important to note that we used a early stopping technique not to go
+into the 5000 episodes, if not needed. The plot of the scores is shown
+in \texttt{Figure\ 03} and it suggests that just increasing the number
+of episodes alone could improve performance.
+
+\begin{figure}
+\centering
+\includegraphics{imgs/results_1.png}
+\caption{Learning evolution}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{imgs/results_2.png}
+\caption{Learning evolution plot}
+\end{figure}
+
+After seeing the plot shown in \texttt{Figure\ 03} I've tried to improve
+the agent's performance by just removing the early stopping if-clause
+and letting the DQN to train the entire 3000 episodes. The results are
+shown in the \texttt{Figure\ 04} and from it we can see that increasing
+the number of episodes can only get us so far (because the average score
+stagnates after about 1000 episodes) and to make the agent learn better
+we have to try different strategies, as suggest in the section Ideas to
+Explore Later.
+
+\includegraphics{imgs/results_3.png} \pagebreak
 
 \hypertarget{ideas-to-explore-later}{%
 \section{Ideas to Explore Later}\label{ideas-to-explore-later}}
