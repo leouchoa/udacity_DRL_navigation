@@ -36,7 +36,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={report},
+  pdftitle={Banana Collector Navigation Project Solution},
   pdfauthor={Leonardo Uchoa Pedreira},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
@@ -60,7 +60,14 @@
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 
-\title{report}
+\title{Banana Collector Navigation Project Solution}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Udacity Deep Reinforcement Learning Project Number 01}
 \author{Leonardo Uchoa Pedreira}
 \date{7/28/2021}
 
@@ -76,6 +83,8 @@
 
 This document is a report describing the learning algorithm and details
 of implementation, along with ideas for future work.
+
+\pagebreak
 
 \hypertarget{algorithm-dqn-and-q-learning}{%
 \section{Algorithm: DQN and
@@ -100,7 +109,180 @@ to solve is as follows
 \]
 
 So in a given time step \texttt{t} we search for the action that
-maximizes the action-value pair \(Q(s_{t+1},a)\) (and hence why this
-algorithm belongs to the tabular methods class)
+maximizes the action-value pair \(Q(s_{t+1},a)\) in order to estimate
+the optimal future value. DQN uses neural networks to step up from the
+traditional tabular method approach to the function approximation
+approach, which means that instead of storing the q-values in a table,
+we're going to encode it in a \textbf{parametrized} function
+approximator (parametrization what turn the q-value from \(q(s,a)\) to
+\(q(s,a;\theta)\)). This gives us a lot flexibility to solve many other
+problems, specially those whose state space is continuous.
+
+The figure bellow is the \texttt{DQN} implementation proposed in the
+\href{https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf}{nature
+paper}. In that implementation there are two important additional
+tricks. Those tricks are employed in order to solve some instability
+that the neural network suffers in training. The first is experience
+replay and the second is the fixed q-targets.
+
+Experience replay is mainly just creating a buffer to store some events
+(the \((S_{t},A_{t},R_{t},S_{t+1})\) action-pairs) and then latter using
+mini-batches of them to run gradient descent and learn the network
+weights.
+
+Fixed q-targets is a technique used to avoid a difficulty found in
+Q-Learning, where we update a guess with a guess, which can potentially
+lead to harmful correlations. In Q-Learning after each pass our neural
+network tries to get as close as possible to the target q-values, but
+the problem is that because we update the weights after each forward
+pass, our q-value target to calculate the loss function is always
+changing and that makes learning a bit unstable. To solve this problem
+the idea is to store the weights in another neural network \(\hat{q}\)
+(called target network), freeze \(\hat{q}\) the weights and update them
+every once in a while. Now when performing the learning step, our
+q-value loss function is the deviation from the forward pass calculated
+\(q\) and the target (fixed) \(\hat{q}\) value. That means that out
+``ground-truth'' response variable is the fixed q-value from the target
+network and that makes learning more stable.
+
+\includegraphics{imgs/dqn_print_1.png}
+
+\pagebreak
+
+\hypertarget{coding-the-algorithm}{%
+\section{Coding the Algorithm}\label{coding-the-algorithm}}
+
+The code implementation of the algorithm used here is mostly inspired
+the by ``Lunar Landing'' project notebook provided by \texttt{Udacity},
+in the ``Value-Based'' section. Here is a brief description of the
+files:
+
+\begin{itemize}
+\item
+  \textbf{Navigation.ipynb}: a jupyter notebook that serves as a wrapper
+  of smaller functions. This is the main file, responsible for: 1)
+  starting the environment; 2) loading the neural network architecture
+  in \texttt{model\_py}; 3) loading the \texttt{dqn\_agent}
+  implementation with fixed q-targets and experience replay.
+\item
+  \textbf{model.py}: this is where the neural network architecture is
+  stored, written in \texttt{pytorch}.
+\item
+  \textbf{dqn\_agent.py}: this is code that implements the \texttt{DQN}
+  high-level ideas of fixed q-targets and experience replay.
+\item
+  \textbf{checkpoint.pth}: this is the \texttt{DQN} model weights used
+  to solve the environment \textbf{with} early stopping (which means
+  that if achieve the average score of +13 over 100 episodes than we
+  finish learning).
+\item
+  \textbf{checkpoint\_no\_callback.pth}: this is the \texttt{DQN} model
+  weights used to solve the environment \textbf{without} early stopping
+  (which means that even if achieve the average score of +13 over 100
+  episodes, we still continue learning until we hit the total number of
+  episodes specified).
+\end{itemize}
+
+\hypertarget{comments-on-model.py}{%
+\subsection{\texorpdfstring{Comments on
+\texttt{model.py}}{Comments on model.py}}\label{comments-on-model.py}}
+
+The \texttt{model.py} file contains the pytorch model architecture used
+to solve the environment. The architecture used is a simple 2 fully
+connected layer with RELU activation function. The input size that the
+network expects is the 37 dimension array corresponding to the state
+space size, while the output layer is a simple linear layer with output
+size of 4 which corresponds to the 4 actions available
+(forward,backward,left,right).
+
+\hypertarget{comments-on-dqn_agent.py}{%
+\subsection{\texorpdfstring{Comments on
+\texttt{dqn\_agent.py}}{Comments on dqn\_agent.py}}\label{comments-on-dqn_agent.py}}
+
+The \texttt{model.py} file contains:
+
+\begin{itemize}
+\tightlist
+\item
+  the hyperparameters used:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{BATCH\_SIZE}: neural network mini-batch size
+  \item
+    \texttt{GAMMA}: the discount factor used in the discounted sum of
+    rewards
+  \item
+    \texttt{TAU}: the \(\tau\) parameter used to soft update of target
+    parameters
+  \item
+    \texttt{LR}: the neural network learning rate use in gradient
+    descent
+  \item
+    \texttt{UPDATE\_EVERY}: how often to update the network
+  \item
+    \texttt{BUFFER\_SIZE}: replay buffer size (how much we store into
+    the replay buffer)
+  \end{itemize}
+\item
+  the \texttt{Agent} class:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    implements the \texttt{step}, \texttt{act}, \texttt{learn} and
+    \texttt{soft\_updates} methods
+  \item
+    initializes the policy and target networks for fixed q-target
+    strategy
+  \item
+    initializes the \texttt{ReplayBuffer} class.
+  \end{itemize}
+\item
+  the \texttt{ReplayBuffer} class: an API to
+
+  \begin{itemize}
+  \tightlist
+  \item
+    initialize storage
+  \item
+    implement the \texttt{add} (add new experiences) and \texttt{sample}
+    (sample experiences to mini-batch GD learning) methods
+  \end{itemize}
+\end{itemize}
+
+\pagebreak
+
+\hypertarget{ideas-to-explore-later}{%
+\section{Ideas to Explore Later}\label{ideas-to-explore-later}}
+
+Some ideas that could lead to improvements in the learning process are
+trying to:
+
+\begin{itemize}
+\item
+  Use Double Q-Learning, as presented
+  \href{https://arxiv.org/pdf/1509.06461}{here}. The idea is very
+  similar the the DQN, but the Q-learning algorithm is known to
+  overestimate action values under certain conditions and so double
+  Q-learning could lead to better performance.
+\item
+  Change the neural network architecture. Maybe add a convolutional
+  layer or some dropout and see how things go.
+\item
+  Try using \href{https://arxiv.org/pdf/1511.05952}{prioritized
+  experience replay} to replay important transitions more frequently,
+  and therefore learn more efficiently.
+\item
+  Try Dueling DQN, as presented
+  \href{https://arxiv.org/pdf/1511.06581}{here}. The idea is to
+  introduce the advantage function as a separate estimator. The main
+  benefit it provides is to generalize learning across actions without
+  imposing any change to the underlying reinforcement learning
+  algorithm. The results displayed in the paper shows that this
+  architecture could lead to better policy evaluation in the presence of
+  many similar-valued actions
+\end{itemize}
 
 \end{document}
