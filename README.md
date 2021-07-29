@@ -3,7 +3,9 @@ Navigation codes for the project Navigation submission.
 
 ## About the Project
 
-The goal of the project is to train an agent to navigate in a world and collect as many yellow bananas as possible, as fast as it can. Also it should avoid collecting blue bananas as part of the challenge. 
+The goal of the project is to train an agent to navigate in a world and collect as many yellow bananas as possible, as fast as it can. Also it should avoid collecting blue bananas as part of the challenge. The gif bellow ilustrates what the environment and the task looks like
+
+![banana environment navigation task](navigation.gif)
 
 To do that a reinforcement learning agent was trained. Specifically it was trained using a Deep Neural Network, with a technique called DQN, similar as was presented in the original DQN [paper](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf).
 
@@ -69,4 +71,3 @@ Some ideas that could lead to improvements in the learning process are trying to
 - Use Double Q-Learning, as presented [here](https://arxiv.org/pdf/1509.06461). The idea is very similar the the DQN, but the Q-learning algorithm is known to overestimate action values under certain conditions and so double Q-learning could lead to better performance.
 - Change the neural network architecture. Maybe add a convolutional layer or some dropout and see how things go.
 - Try using [prioritized experience replay](https://arxiv.org/pdf/1511.05952) to replay important transitions more frequently, and therefore learn more efficiently.
-
