@@ -191,13 +191,26 @@ files:
 \subsection{\texorpdfstring{Comments on
 \texttt{model.py}}{Comments on model.py}}\label{comments-on-model.py}}
 
-The \texttt{model.py} file contains the pytorch model architecture used
-to solve the environment. The architecture used is a simple 2 fully
-connected layer with RELU activation function. The input size that the
-network expects is the 37 dimension array corresponding to the state
-space size, while the output layer is a simple linear layer with output
-size of 4 which corresponds to the 4 actions available
+The \texttt{model.py} file contains the \texttt{pytorch} model
+architecture used to solve the environment. The architecture used is a
+simple 2 fully connected layer with RELU activation function. The input
+size that the network expects is the 37 dimension array corresponding to
+the state space size, while the output layer is a simple linear layer
+with output size of 4 which corresponds to the 4 actions available
 (forward,backward,left,right).
+
+The \texttt{hyperparameters} used are:
+
+\begin{itemize}
+\tightlist
+\item
+  the number of units in both first and second fully connected layer are
+  64.
+\item
+  the learning rate parameter used in the \texttt{adam} optimizer is
+  \texttt{LR\ =\ 5e-4} (this actually belongs to the \texttt{model.py}
+  file, but it's also part of the neural network architecture)
+\end{itemize}
 
 \hypertarget{comments-on-dqn_agent.py}{%
 \subsection{\texorpdfstring{Comments on
